@@ -1,4 +1,4 @@
-package org.minerva.stateservice.controllers;
+package org.minerva.stateservice.hrm;
 
 import org.camunda.bpm.model.bpmn.Bpmn;
 import org.camunda.bpm.model.bpmn.BpmnModelInstance;

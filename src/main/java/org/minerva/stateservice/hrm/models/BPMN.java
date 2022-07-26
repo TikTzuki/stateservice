@@ -1,4 +1,4 @@
-package org.minerva.stateservice.models;
+package org.minerva.stateservice.hrm.models;
 
 import javax.persistence.*;
 import java.sql.Blob;

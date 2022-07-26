@@ -7,7 +7,7 @@ import org.camunda.bpm.model.bpmn.instance.SequenceFlow;
 import org.camunda.bpm.model.bpmn.instance.StartEvent;
 import org.camunda.bpm.model.bpmn.instance.Task;
 import org.minerva.stateservice.hrm.repos.OrgRepos;
-import org.minerva.stateservice.models.Org;
+import org.minerva.stateservice.hrm.models.Org;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
