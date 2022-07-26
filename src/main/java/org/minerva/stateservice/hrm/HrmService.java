@@ -2,12 +2,9 @@ package org.minerva.stateservice.hrm;
 
 import org.camunda.bpm.model.bpmn.Bpmn;
 import org.camunda.bpm.model.bpmn.BpmnModelInstance;
-import org.camunda.bpm.model.bpmn.instance.FlowNode;
-import org.camunda.bpm.model.bpmn.instance.SequenceFlow;
-import org.camunda.bpm.model.bpmn.instance.StartEvent;
-import org.camunda.bpm.model.bpmn.instance.Task;
-import org.minerva.stateservice.hrm.repos.OrgRepos;
+import org.camunda.bpm.model.bpmn.instance.*;
 import org.minerva.stateservice.hrm.models.Org;
+import org.minerva.stateservice.hrm.repos.OrgRepos;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -30,18 +27,26 @@ public class HrmService {
         if (current instanceof Task) {
             Org org = new Org(null, null, current.getTextContent());
             orgRepos.save(org);
-            print(org.getId());
-            travelFlowNode(current);
+            String path = String.format("%s/", org.getId());
+            for (SequenceFlow sequenceFlow : current.getOutgoing())
+                travelFlowNode(sequenceFlow.getTarget(), path);
         }
 
     }
 
-    private void travelFlowNode(FlowNode flowNode) {
+    private void travelFlowNode(FlowNode flowNode, String path) {
         if (flowNode instanceof Task) {
             print(flowNode.getName());
+            Org org = new Org(null, path, flowNode.getTextContent());
+            orgRepos.save(org);
+            for (SequenceFlow sequenceFlow : flowNode.getOutgoing()) {
+                travelFlowNode(sequenceFlow.getTarget(), String.format("%s%s/", path, org.getId()));
+            }
         }
-        for (SequenceFlow sequenceFlow : flowNode.getOutgoing()) {
-            travelFlowNode(sequenceFlow.getTarget());
+        if (flowNode instanceof ParallelGateway) {
+            for (SequenceFlow sequenceFlow : flowNode.getOutgoing()) {
+                travelFlowNode(sequenceFlow.getTarget(), path);
+            }
         }
     }
 
