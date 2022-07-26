@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+                  xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:modeler="http://camunda.org/schema/modeler/1.0" id="Definitions_02m23tv" targetNamespace="http://bpmn.io/schema/bpmn"
+                  exporter="Camunda Modeler" exporterVersion="4.12.0" modeler:executionPlatform="Camunda Platform" modeler:executionPlatformVersion="7.15.0">
+    <bpmn:process id="user_tree" name="user_tree" isExecutable="true">
+        <bpmn:task id="sid-14e5dea2-72f9-4127-9161-5760e79f58de" name="BAN ĐIỀU HÀNH/GIÁM ĐỐC">
+            <bpmn:documentation>{
+                "name": "THÔNG TIN BAN ĐIỀU HÀNH/GIÁM ĐỐC",
+                "level":5
+                }
+            </bpmn:documentation>
+            <bpmn:incoming>sid-e1c70de5-16c2-41c2-a61a-fe46aa74c436</bpmn:incoming>
+            <bpmn:outgoing>sid-8d643c9f-c412-420e-81ca-4f0a6f193de2</bpmn:outgoing>
+        </bpmn:task>
+        <bpmn:task id="sid-3ce272cc-3819-44ed-a313-5c2698ac2e4f" name="KHỐI DỊCH VỤ NGÂN HÀNG VÀ TÀI CHÍNH CÁ NHÂN">
+            <bpmn:documentation>{
+                "name": "THÔNG TIN KHỐI DỊCH VỤ NGÂN HÀNG VÀ TÀI CHÍNH CÁ NHÂN",
+                "level":7
+                }
+            </bpmn:documentation>
+            <bpmn:incoming>sid-e250d5c8-f3f3-4759-8cd7-ec68d777a742</bpmn:incoming>
+            <bpmn:outgoing>Flow_0ann0c2</bpmn:outgoing>
+        </bpmn:task>
+        <bpmn:task id="sid-272ab91d-5fe2-475a-aebd-8e99f3a69973" name="BAN ALM">
+            <bpmn:documentation>{
+                "name":"THÔNG TIN BAN ALM",
+                "level":7
+                }
+            </bpmn:documentation>
+            <bpmn:incoming>sid-b9df6d05-b2e5-452b-b5f2-82fb35a5a22f</bpmn:incoming>
+        </bpmn:task>
+        <bpmn:parallelGateway id="sid-3e9430a8-bec3-422c-9283-351d0836e04f">
+            <bpmn:incoming>sid-8d643c9f-c412-420e-81ca-4f0a6f193de2</bpmn:incoming>
+            <bpmn:outgoing>sid-e250d5c8-f3f3-4759-8cd7-ec68d777a742</bpmn:outgoing>
+            <bpmn:outgoing>sid-b9df6d05-b2e5-452b-b5f2-82fb35a5a22f</bpmn:outgoing>
+            <bpmn:outgoing>Flow_1vr9qbp</bpmn:outgoing>
+            <bpmn:outgoing>Flow_0svnw9x</bpmn:outgoing>
+        </bpmn:parallelGateway>
+        <bpmn:sequenceFlow id="sid-8d643c9f-c412-420e-81ca-4f0a6f193de2" sourceRef="sid-14e5dea2-72f9-4127-9161-5760e79f58de" targetRef="sid-3e9430a8-bec3-422c-9283-351d0836e04f"/>
+        <bpmn:sequenceFlow id="sid-e250d5c8-f3f3-4759-8cd7-ec68d777a742" sourceRef="sid-3e9430a8-bec3-422c-9283-351d0836e04f" targetRef="sid-3ce272cc-3819-44ed-a313-5c2698ac2e4f"/>
+        <bpmn:sequenceFlow id="sid-b9df6d05-b2e5-452b-b5f2-82fb35a5a22f" sourceRef="sid-3e9430a8-bec3-422c-9283-351d0836e04f" targetRef="sid-272ab91d-5fe2-475a-aebd-8e99f3a69973"/>
+        <bpmn:task id="Activity_1jnoz0m" name="PHÒNG PHÁT TRIỂN SẢN PHẨM KHÁCH HÀNG DOANH NGHIỆP">
+            <bpmn:documentation>{
+                "name": "THÔNG TIN PHÒNG PHÁT TRIỂN SẢN PHẨM KHÁCH HÀNG DOANH NGHIỆP",
+                "level":8
+                }
+            </bpmn:documentation>
+            <bpmn:incoming>Flow_000is71</bpmn:incoming>
+        </bpmn:task>
+        <bpmn:sequenceFlow id="Flow_000is71" sourceRef="Gateway_11j29au" targetRef="Activity_1jnoz0m"/>
+        <bpmn:parallelGateway id="Gateway_11j29au">
+            <bpmn:incoming>Flow_0ann0c2</bpmn:incoming>
+            <bpmn:outgoing>Flow_000is71</bpmn:outgoing>
+            <bpmn:outgoing>Flow_0eyf4uf</bpmn:outgoing>
+        </bpmn:parallelGateway>
+        <bpmn:sequenceFlow id="Flow_0ann0c2" sourceRef="sid-3ce272cc-3819-44ed-a313-5c2698ac2e4f" targetRef="Gateway_11j29au"/>
+        <bpmn:task id="Activity_12r3d65" name="PHÒNG PHÁT TRIỂN KINH DOANH KHÁCH HÀNG DOANH NGHIỆP">
+            <bpmn:documentation>{"name": "PHÒNG PHÁT TRIỂN KINH DOANH KHÁCH HÀNG DOANH NGHIỆP",
+                "level": 8
+                }
+            </bpmn:documentation>
+            <bpmn:incoming>Flow_0eyf4uf</bpmn:incoming>
+        </bpmn:task>
+        <bpmn:sequenceFlow id="Flow_0eyf4uf" sourceRef="Gateway_11j29au" targetRef="Activity_12r3d65"/>
+        <bpmn:task id="Activity_0mjnsy4" name="CÁC HỘI ĐỒNG/BAN THUỘC TGĐ">
+            <bpmn:documentation>{
+                "name":"CÁC HỘI ĐỒNG/BAN THUỘC TGĐ",
+                "level":6
+                }
+            </bpmn:documentation>
+            <bpmn:incoming>Flow_0svnw9x</bpmn:incoming>
+        </bpmn:task>
+        <bpmn:task id="Activity_1lyodjl" name="VĂN PHÒNG TỔNG GIÁM ĐỐC">
+            <bpmn:documentation>{"name":"VĂN PHÒNG TỔNG GIÁM ĐỐC",
+                "level": 6}
+            </bpmn:documentation>
+            <bpmn:incoming>Flow_1vr9qbp</bpmn:incoming>
+        </bpmn:task>
+        <bpmn:sequenceFlow id="Flow_1vr9qbp" sourceRef="sid-3e9430a8-bec3-422c-9283-351d0836e04f" targetRef="Activity_1lyodjl"/>
+        <bpmn:sequenceFlow id="Flow_0svnw9x" sourceRef="sid-3e9430a8-bec3-422c-9283-351d0836e04f" targetRef="Activity_0mjnsy4"/>
+        <bpmn:startEvent id="sid-0a45c8bf-8e4a-4509-b5e7-484ee590f181">
+            <bpmn:outgoing>sid-e1c70de5-16c2-41c2-a61a-fe46aa74c436</bpmn:outgoing>
+        </bpmn:startEvent>
+        <bpmn:sequenceFlow id="sid-e1c70de5-16c2-41c2-a61a-fe46aa74c436" sourceRef="sid-0a45c8bf-8e4a-4509-b5e7-484ee590f181" targetRef="sid-14e5dea2-72f9-4127-9161-5760e79f58de"/>
+    </bpmn:process>
+    <bpmndi:BPMNDiagram id="BPMNDiagram_user_tree">
+        <bpmndi:BPMNPlane id="BPMNPlane_user_tree" bpmnElement="user_tree">
+            <bpmndi:BPMNEdge id="edge-00881555-d490-4a91-856d-0c8442569de0" bpmnElement="sid-e1c70de5-16c2-41c2-a61a-fe46aa74c436">
+                <di:waypoint x="290" y="97.5"/>
+                <di:waypoint x="390" y="100"/>
+            </bpmndi:BPMNEdge>
+            <bpmndi:BPMNEdge id="Flow_0svnw9x_di" bpmnElement="Flow_0svnw9x">
+                <di:waypoint x="420" y="235"/>
+                <di:waypoint x="260" y="235"/>
+            </bpmndi:BPMNEdge>
+            <bpmndi:BPMNEdge id="Flow_1vr9qbp_di" bpmnElement="Flow_1vr9qbp">
+                <di:waypoint x="460" y="235"/>
+                <di:waypoint x="590" y="235"/>
+            </bpmndi:BPMNEdge>
+            <bpmndi:BPMNEdge id="Flow_0eyf4uf_di" bpmnElement="Flow_0eyf4uf">
+                <di:waypoint x="520" y="505"/>
+                <di:waypoint x="520" y="533"/>
+                <di:waypoint x="600" y="533"/>
+                <di:waypoint x="600" y="560"/>
+            </bpmndi:BPMNEdge>
+            <bpmndi:BPMNEdge id="Flow_0ann0c2_di" bpmnElement="Flow_0ann0c2">
+                <di:waypoint x="520" y="410"/>
+                <di:waypoint x="520" y="455"/>
+            </bpmndi:BPMNEdge>
+            <bpmndi:BPMNEdge id="Flow_000is71_di" bpmnElement="Flow_000is71">
+                <di:waypoint x="520" y="505"/>
+                <di:waypoint x="520" y="600"/>
+                <di:waypoint x="490" y="600"/>
+            </bpmndi:BPMNEdge>
+            <bpmndi:BPMNEdge id="edge-ae8b8976-296b-4a35-b100-835d1e6a7628" bpmnElement="sid-b9df6d05-b2e5-452b-b5f2-82fb35a5a22f">
+                <di:waypoint x="440" y="255"/>
+                <di:waypoint x="440" y="331"/>
+                <di:waypoint x="400" y="331"/>
+            </bpmndi:BPMNEdge>
+            <bpmndi:BPMNEdge id="edge-c6aa91c8-2b66-4aff-871c-b816ac8d4ee1" bpmnElement="sid-e250d5c8-f3f3-4759-8cd7-ec68d777a742">
+                <di:waypoint x="440" y="255"/>
+                <di:waypoint x="440" y="330"/>
+                <di:waypoint x="480" y="330"/>
+            </bpmndi:BPMNEdge>
+            <bpmndi:BPMNEdge id="edge-facbc55c-a7b6-4603-b7c1-30710dc16597" bpmnElement="sid-8d643c9f-c412-420e-81ca-4f0a6f193de2">
+                <di:waypoint x="440" y="160"/>
+                <di:waypoint x="440" y="215"/>
+            </bpmndi:BPMNEdge>
+            <bpmndi:BPMNShape id="shape-bba75229-ad02-44d1-8cbb-d2694ee9d20b" bpmnElement="sid-14e5dea2-72f9-4127-9161-5760e79f58de">
+                <dc:Bounds x="390" y="80" width="100" height="80"/>
+                <bpmndi:BPMNLabel/>
+            </bpmndi:BPMNShape>
+            <bpmndi:BPMNShape id="shape-f091bb13-aa52-46d9-9b04-728f06a6ad33" bpmnElement="sid-3ce272cc-3819-44ed-a313-5c2698ac2e4f">
+                <dc:Bounds x="470" y="330" width="100" height="80"/>
+                <bpmndi:BPMNLabel/>
+            </bpmndi:BPMNShape>
+            <bpmndi:BPMNShape id="shape-6595dfc7-39bb-4492-a1de-d12487e964ee" bpmnElement="sid-272ab91d-5fe2-475a-aebd-8e99f3a69973">
+                <dc:Bounds x="300" y="320" width="100" height="80"/>
+                <bpmndi:BPMNLabel/>
+            </bpmndi:BPMNShape>
+            <bpmndi:BPMNShape id="shape-19e8ea10-0792-427d-ac6a-28771397da36" bpmnElement="sid-3e9430a8-bec3-422c-9283-351d0836e04f">
+                <dc:Bounds x="420" y="215" width="40" height="40"/>
+            </bpmndi:BPMNShape>
+            <bpmndi:BPMNShape id="Activity_1jnoz0m_di" bpmnElement="Activity_1jnoz0m">
+                <dc:Bounds x="390" y="560" width="100" height="80"/>
+                <bpmndi:BPMNLabel/>
+            </bpmndi:BPMNShape>
+            <bpmndi:BPMNShape id="Gateway_0b5nve2_di" bpmnElement="Gateway_11j29au">
+                <dc:Bounds x="495" y="455" width="50" height="50"/>
+            </bpmndi:BPMNShape>
+            <bpmndi:BPMNShape id="Activity_12r3d65_di" bpmnElement="Activity_12r3d65">
+                <dc:Bounds x="550" y="560" width="100" height="80"/>
+                <bpmndi:BPMNLabel/>
+            </bpmndi:BPMNShape>
+            <bpmndi:BPMNShape id="Activity_0mjnsy4_di" bpmnElement="Activity_0mjnsy4">
+                <dc:Bounds x="160" y="195" width="100" height="80"/>
+                <bpmndi:BPMNLabel/>
+            </bpmndi:BPMNShape>
+            <bpmndi:BPMNShape id="shape-3aed0096-6e17-470f-b6c0-65bf2b07aa14" bpmnElement="sid-0a45c8bf-8e4a-4509-b5e7-484ee590f181">
+                <dc:Bounds x="260" y="75" width="30" height="30"/>
+            </bpmndi:BPMNShape>
+            <bpmndi:BPMNShape id="BPMNShape_1f21a7d" bpmnElement="Activity_1lyodjl">
+                <dc:Bounds x="590" y="195" width="100" height="80"/>
+                <bpmndi:BPMNLabel/>
+            </bpmndi:BPMNShape>
+        </bpmndi:BPMNPlane>
+    </bpmndi:BPMNDiagram>
+</bpmn:definitions>
