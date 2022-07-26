@@ -1,21 +1,12 @@
-package org.minerva.stateservice.hrm.models;
+package org.minerva.stateservice.hrm.models
 
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import javax.persistence.Entity
+import javax.persistence.Id
+import javax.persistence.Table
 
 @Entity
-@Table(name = "person")
-public class Person {
-
+@Table(name = "org_user")
+class User(
     @Id
-    String username;
-
-    public Person() {
-    }
-
-    public Person(String username) {
-        this.username = username;
-    }
-
-}
+    var username: String? = null,
+)

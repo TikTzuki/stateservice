@@ -14,7 +14,7 @@ import java.io.IOException;
 import static org.minerva.stateservice.Utils.print;
 
 @Service
-public class HrmService {
+public class OrgService {
     @Autowired
     OrgRepos orgRepos;
 
