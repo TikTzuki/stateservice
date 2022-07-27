@@ -8,9 +8,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 public class RedocController {
     @RequestMapping(value = "/redoc", method = RequestMethod.GET)
     public String redoc() {
-//        ModelAndView modelAndView = new ModelAndView();
-//        modelAndView.setViewName("redoc.html");
-//        return modelAndView;
         return "redoc.html";
     }
 }

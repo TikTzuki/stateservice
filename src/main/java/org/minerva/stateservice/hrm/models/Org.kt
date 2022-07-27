@@ -13,4 +13,7 @@ class Org(
     var id: Long? = null,
     var ancestry: String? = null,
     var data: String? = null,
-)
+){
+    constructor(ancestry: String?, data: String?) : this(null, ancestry, data) {
+    }
+}

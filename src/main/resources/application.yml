@@ -1,0 +1,29 @@
+spring:
+  application:
+    name: workflow-service
+  cloud:
+    config:
+      server:
+        git:
+          uri: https://gitlab.com/micro-platform/config-repos.git
+          default-label: master
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+  datasource:
+    url: jdbc:oracle:thin:@192.168.74.66:1521/los
+    driver-class-name: oracle.jdbc.driver.OracleDriver
+    username: DEV_LOS
+    password: dvkh2022
+
+springdoc:
+  api-docs:
+    path: /api-docs
+  swagger-ui:
+    path: /
+
+server:
+  port: 8000
+  error:
+    include-stacktrace: on_param
+    include-exception: true
