@@ -1,6 +1,7 @@
 package org.minerva.stateservice.hrm;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.minerva.stateservice.hrm.models.FileUpload;
 import org.minerva.stateservice.hrm.models.Org;
 import org.minerva.stateservice.hrm.repos.OrgRepos;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,8 +39,9 @@ public class OrgController {
     }
 
     @PostMapping(value = "/orgs/export")
-    public void exportOrgTree() throws IOException {
-        orgService.exportOrgTree();
+    public ResponseEntity<Object> exportOrgTree() throws IOException {
+        FileUpload fileUpload = orgService.exportOrgTree();
+        return new ResponseEntity<>(fileUpload, HttpStatus.CREATED);
     }
 
     @GetMapping("/orgs")

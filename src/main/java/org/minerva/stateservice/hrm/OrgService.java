@@ -1,27 +1,27 @@
 package org.minerva.stateservice.hrm;
 
-import okhttp3.*;
+import com.google.gson.JsonArray;
+import okhttp3.MediaType;
+import okhttp3.MultipartBody;
+import okhttp3.RequestBody;
 import org.camunda.bpm.model.bpmn.Bpmn;
 import org.camunda.bpm.model.bpmn.BpmnModelInstance;
+import org.camunda.bpm.model.bpmn.instance.Process;
 import org.camunda.bpm.model.bpmn.instance.*;
 import org.minerva.stateservice.hrm.configs.ServiceConfigs;
+import org.minerva.stateservice.hrm.models.FileUpload;
 import org.minerva.stateservice.hrm.models.Org;
 import org.minerva.stateservice.hrm.repos.OrgRepos;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.PathResource;
-import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-import retrofit2.Call;
-import retrofit2.Callback;
 import retrofit2.Response;
-import retrofit2.Retrofit;
-import retrofit2.converter.gson.GsonConverterFactory;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.List;
 
 import static org.minerva.stateservice.Utils.print;
 
@@ -29,8 +29,12 @@ import static org.minerva.stateservice.Utils.print;
 public class OrgService {
     @Autowired
     OrgRepos orgRepos;
+
     @Autowired
     ServiceConfigs serviceConfigs;
+
+    @Autowired
+    FileService fileService;
 
     public void syncFromFile(MultipartFile file) throws IOException {
         BpmnModelInstance modelInstance = Bpmn.readModelFromStream(file.getInputStream());
@@ -48,38 +52,77 @@ public class OrgService {
     }
 
 
-    public Resource exportOrgTree() throws IOException {
-        Path path = Files.createTempFile("file", ".bpmn");
-        Files.write(path, "Hello".getBytes());
+    public FileUpload exportOrgTree() throws IOException {
+        Path path = Files.createTempFile("org_", ".bpmn");
+
+        createProcess1(path.toFile());
+
         MultipartBody.Part filePart = MultipartBody.Part.createFormData(
                 "file",
                 path.getFileName().toString(),
-                RequestBody.create(MediaType.parse("/**"),path.toFile())
+                RequestBody.create(path.toFile(), MediaType.parse("/**"))
         );
-        Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl(serviceConfigs.host)
-                .addConverterFactory(GsonConverterFactory.create())
-                .client(new OkHttpClient())
-                .build();
-        FileRepos fileRepos = retrofit.create(FileRepos.class);
-        fileRepos.upload(filePart, serviceConfigs.serverAuth, serviceConfigs.auth).enqueue(
-                new Callback<ResponseBody>() {
-                    @Override
-                    public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
-                        try {
-                            print(response.body().string());
-                        } catch (IOException e) {
-                            throw new RuntimeException(e);
-                        }
-                    }
 
-                    @Override
-                    public void onFailure(Call<ResponseBody> call, Throwable throwable) {
-                        print(throwable);
-                    }
-                }
-        );
-        return null;
+        Response<FileUpload> resp = fileService.upload(filePart).execute();
+        if (!resp.isSuccessful() || resp.body() == null)
+            throw new RuntimeException(resp.errorBody().string());
+
+        FileUpload file = resp.body();
+        Response<JsonArray> urlObject = fileService.download(List.of(file.getUuid())).execute();
+        if (!urlObject.isSuccessful() || urlObject.body() == null)
+            throw new RuntimeException(urlObject.errorBody().string());
+
+        file.setFileUrl(urlObject.body().iterator().next().getAsJsonObject().get("file_url").getAsString());
+        return file;
+    }
+
+    public void createProcess(File file) {
+        BpmnModelInstance model = Bpmn.createEmptyModel();
+        Definitions definitions = model.newInstance(Definitions.class);
+        definitions.setTargetNamespace("https://camunda.org/examples");
+        model.setDefinitions(definitions);
+
+        Process process = model.newInstance(Process.class);
+        definitions.addChildElement(process);
+
+        StartEvent startEvent = model.newInstance(StartEvent.class);
+        startEvent.setId("start");
+        process.addChildElement(startEvent);
+
+        UserTask task = model.newInstance(UserTask.class);
+        task.setId("task");
+        task.setName("User Task");
+        process.addChildElement(task);
+
+        SequenceFlow sequenceFlow = model.newInstance(SequenceFlow.class);
+        process.addChildElement(sequenceFlow);
+        connect(sequenceFlow, startEvent, task);
+
+        Bpmn.writeModelToFile(file, model);
+    }
+
+    public void createProcess1(File file) {
+        BpmnModelInstance modelInstance = Bpmn.createProcess()
+                .name("simple-process")
+                .executable()
+                .startEvent()
+                .name("start-event")
+                .userTask()
+                .exclusiveGateway()
+                .condition("yes", "${approved}")
+                .userTask()
+                .endEvent()
+                .moveToLastGateway()
+                .condition("no", "${!approved}")
+                .endEvent().done();
+        Bpmn.writeModelToFile(file, modelInstance);
+    }
+
+    private void connect(SequenceFlow flow, FlowNode from, FlowNode to) {
+        flow.setSource(from);
+        from.getOutgoing().add(flow);
+        flow.setTarget(to);
+        to.getIncoming().add(flow);
     }
 
     public void createOrg(Long parentId, String name) {

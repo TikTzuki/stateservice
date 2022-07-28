@@ -15,7 +15,8 @@ spring:
     driver-class-name: oracle.jdbc.driver.OracleDriver
     username: DEV_LOS
     password: dvkh2022
-
+  jackson:
+    default-property-inclusion: always
 springdoc:
   api-docs:
     path: /api-docs

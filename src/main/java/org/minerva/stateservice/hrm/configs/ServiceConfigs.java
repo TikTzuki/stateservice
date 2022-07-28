@@ -14,4 +14,5 @@ public class ServiceConfigs {
 
     @Value("${server-auth}")
     public String serverAuth;
+    
 }
