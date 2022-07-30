@@ -35,7 +35,7 @@ public class OrgController {
             "multipart/form-data"
     })
     public void syncOrgByBpmn(@RequestParam("file") MultipartFile file) throws IOException {
-        orgService.syncFromFile(file);
+        orgService.syncFromFile(file.getInputStream());
     }
 
     @PostMapping(value = "/orgs/export")
