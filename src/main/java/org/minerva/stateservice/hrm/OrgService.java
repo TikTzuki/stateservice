@@ -6,7 +6,7 @@ import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
 import org.camunda.bpm.model.bpmn.Bpmn;
 import org.camunda.bpm.model.bpmn.BpmnModelInstance;
-import org.camunda.bpm.model.bpmn.builder.ParallelGatewayBuilder;
+import org.camunda.bpm.model.bpmn.builder.AbstractGatewayBuilder;
 import org.camunda.bpm.model.bpmn.instance.*;
 import org.minerva.stateservice.hrm.configs.ServiceConfigs;
 import org.minerva.stateservice.hrm.models.FileUpload;
@@ -14,7 +14,6 @@ import org.minerva.stateservice.hrm.models.Org;
 import org.minerva.stateservice.hrm.repos.OrgRepos;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
 import retrofit2.Response;
 
 import javax.annotation.PostConstruct;
@@ -24,8 +23,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Optional;
-
-import static org.minerva.stateservice.Utils.print;
 
 @Service
 public class OrgService {
@@ -64,6 +61,7 @@ public class OrgService {
     public FileUpload exportFile() throws IOException {
         Path path = Files.createTempFile("org_", ".bpmn");
 
+        Bpmn.writeModelToFile(path.toFile(), createBpmnModel());
 
         MultipartBody.Part filePart = MultipartBody.Part.createFormData(
                 "file",
@@ -82,21 +80,38 @@ public class OrgService {
 
         file.setFileUrl(urlObject.body().iterator().next().getAsJsonObject().get("file_url").getAsString());
 
+        return file;
+    }
+
+    private BpmnModelInstance createBpmnModel() {
         Optional<Org> rootOpt = orgRepos.findByAncestry(null).stream().findAny();
-        if(rootOpt.isEmpty())
+        if (rootOpt.isEmpty())
             return null;
 
         Org root = rootOpt.get();
         String rootAncestry = String.format("%s/", root.getId());
-        ParallelGatewayBuilder builder= Bpmn.createProcess("org_tree")
+        AbstractGatewayBuilder builder = Bpmn.createProcess("org_tree")
                 .startEvent().name("start")
-                .manualTask().documentation(root.getData())
-                .parallelGateway().name(rootAncestry);
-        for(Org org: orgRepos.findByAncestry(rootAncestry)){
-            builder.manualTask().documentation(org.getData()).moveToLastGateway();
+                .manualTask(root.getTaskId()).name(root.getTaskId())
+                .parallelGateway(root.getNextGatewayId()).name(root.getNextGatewayId());
+        for (Org org : orgRepos.findByAncestry(rootAncestry)) {
+            builder = travelOrgTree(org, builder);
         }
+        return builder.done();
+    }
 
-        return file;
+    private AbstractGatewayBuilder travelOrgTree(Org org, AbstractGatewayBuilder builder) {
+        String ancestry = String.format("%s%s/", org.getAncestry(), org.getId());
+        builder.moveToNode(org.getPrevGatewayId())
+                .manualTask(org.getTaskId()).name(org.getTaskId()).documentation(org.getData());
+        List<Org> children = orgRepos.findByAncestry(ancestry);
+        if (children.size() > 0)
+            builder = builder.moveToNode(org.getTaskId())
+                    .parallelGateway(org.getNextGatewayId()).name(org.getNextGatewayId());
+        for (Org child : children) {
+            builder = travelOrgTree(child, builder);
+        }
+        return builder;
     }
 
     public void createOrg(Long parentId, String name) {

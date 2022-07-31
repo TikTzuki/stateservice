@@ -40,7 +40,7 @@ public class OrgController {
 
     @PostMapping(value = "/orgs/export")
     public ResponseEntity<Object> exportOrgTree() throws IOException {
-        FileUpload fileUpload = orgService.exportOrgTree();
+        FileUpload fileUpload = orgService.exportFile();
         return new ResponseEntity<>(fileUpload, HttpStatus.CREATED);
     }
 

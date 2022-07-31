@@ -12,8 +12,23 @@ class Org(
     @GeneratedValue
     var id: Long? = null,
     var ancestry: String? = null,
-    var data: String? = null,
-){
-    constructor(ancestry: String?, data: String?) : this(null, ancestry, data) {
+    var data: String,
+) {
+    constructor(ancestry: String?, data: String) : this(null, ancestry, data) {
+    }
+
+    constructor() : this(null, null, "{}") {
+    }
+
+    fun getPrevGatewayId(): String {
+        return String.format("gt-%s", ancestry?.replace("/", "-"))
+    }
+
+    fun getNextGatewayId(): String {
+        return String.format("gt-%s%s-", if (ancestry != null) ancestry?.replace("/", "-") else "", id)
+    }
+
+    fun getTaskId(): String {
+        return String.format("org-%s", id);
     }
 }
