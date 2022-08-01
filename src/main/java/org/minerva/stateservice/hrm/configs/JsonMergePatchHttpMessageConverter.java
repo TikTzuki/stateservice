@@ -1,5 +1,6 @@
-package org.minerva.stateservice;
+package org.minerva.stateservice.hrm.configs;
 
+import kotlin.io.ConsoleKt;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.http.HttpInputMessage;
 import org.springframework.http.HttpOutputMessage;

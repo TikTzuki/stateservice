@@ -1,10 +1,8 @@
 package org.minerva.stateservice.hrm.repos
 
-import org.minerva.stateservice.hrm.models.Org
+import org.minerva.stateservice.hrm.models.Allocate
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.stereotype.Repository
 
 @Repository
-interface OrgRepos : JpaRepository<Org?, String?> {
-    fun findByAncestry(ancestry: String?): List<Org>
-}
+interface AllocateRepos : JpaRepository<Allocate, Long>

@@ -1,18 +1,12 @@
 package org.minerva.stateservice.hrm.configs
 
-import com.fasterxml.jackson.annotation.JsonInclude
-import com.fasterxml.jackson.databind.DeserializationFeature
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.databind.SerializationFeature
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.google.gson.*
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
-import org.minerva.stateservice.hrm.FileService
+import org.minerva.stateservice.hrm.adapters.FileService
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
-import org.springframework.context.annotation.Primary
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.create
@@ -36,6 +30,7 @@ open class Beans(
 //    }
 
     open fun dateDeserializer(): JsonDeserializer<LocalDateTime> {
+        print(1)
         val formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss")
         return JsonDeserializer<LocalDateTime> { json: JsonElement?, type: Type?, jsonDeserializationContext: JsonDeserializationContext? ->
             if (json != null) {

@@ -1,4 +1,4 @@
-package org.minerva.stateservice.hrm
+package org.minerva.stateservice.hrm.adapters
 
 import com.google.gson.JsonArray
 import com.google.gson.JsonElement

@@ -1,23 +1,27 @@
 package org.minerva.stateservice.hrm.models
 
-import javax.persistence.Entity
-import javax.persistence.GeneratedValue
-import javax.persistence.Id
-import javax.persistence.Table
+import javax.persistence.*
+
 
 @Entity
 @Table(name = "org")
 class Org(
     @Id
-    @GeneratedValue
-    var id: Long? = null,
+    var id: String = "000",
     var ancestry: String? = null,
-    var data: String,
+    var data: String = "{}",
+    @OneToMany(cascade = [CascadeType.ALL], mappedBy = "org")
+    var allocates: List<Allocate> = ArrayList(),
 ) {
-    constructor(ancestry: String?, data: String) : this(null, ancestry, data) {
-    }
+    constructor(data_: String) : this(data = data_) {}
 
-    constructor() : this(null, null, "{}") {
+    constructor(id_: String, ancestry_: String?, data_: String) : this(id = id_, ancestry_, data_) {}
+
+    companion object {
+        @JvmStatic
+        fun fromTask(id: String, ancestry: String?, data: String): Org {
+            return Org(id.replace("org-", ""), ancestry, data)
+        }
     }
 
     fun getPrevGatewayId(): String {

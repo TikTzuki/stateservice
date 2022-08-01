@@ -1,4 +1,4 @@
-package org.minerva.stateservice.hrm;
+package org.minerva.stateservice.hrm.org;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.minerva.stateservice.hrm.models.FileUpload;
@@ -51,19 +51,19 @@ public class OrgController {
     }
 
     @GetMapping("/orgs/{id}")
-    public ResponseEntity<Org> getOrg(@PathVariable Long id) {
+    public ResponseEntity<Org> getOrg(@PathVariable String id) {
         Org org = orgRepos.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
         return ResponseEntity.ok(org);
     }
 
     @PostMapping("/orgs")
-    public void postOrg(Long parentId, @RequestBody Map<String, Object> org) {
-        orgService.createOrg(parentId, (String) org.get("name"));
+    public void postOrg(String parentId, @RequestBody Map<String, Object> org) {
+        orgService.createOrg(parentId, (String) org.get("id"), (String) org.get("name"));
     }
 
 
     @PatchMapping(value = "/org/{id}", consumes = "application/json-patch+json")
-    public ResponseEntity<Object> patchOrg(@PathVariable Long id, @RequestBody JsonMergePatch mergePatchOrg) {
+    public ResponseEntity<Object> patchOrg(@PathVariable String id, @RequestBody JsonMergePatch mergePatchOrg) {
         Org org = orgRepos.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
         Org orgPatched = mapper.convertValue(mergePatchOrg.apply(mapper.convertValue(org, JsonValue.class)), Org.class);
         orgRepos.save(orgPatched);
@@ -72,7 +72,7 @@ public class OrgController {
 
 
     @DeleteMapping("/orgs/{id}")
-    public void deleteOrg(Long id) {
+    public void deleteOrg(String id) {
         orgRepos.deleteById(id);
     }
 }

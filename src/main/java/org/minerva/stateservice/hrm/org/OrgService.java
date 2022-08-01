@@ -1,4 +1,4 @@
-package org.minerva.stateservice.hrm;
+package org.minerva.stateservice.hrm.org;
 
 import com.google.gson.JsonArray;
 import okhttp3.MediaType;
@@ -8,10 +8,12 @@ import org.camunda.bpm.model.bpmn.Bpmn;
 import org.camunda.bpm.model.bpmn.BpmnModelInstance;
 import org.camunda.bpm.model.bpmn.builder.AbstractGatewayBuilder;
 import org.camunda.bpm.model.bpmn.instance.*;
+import org.minerva.stateservice.hrm.adapters.FileService;
 import org.minerva.stateservice.hrm.configs.ServiceConfigs;
-import org.minerva.stateservice.hrm.models.FileUpload;
-import org.minerva.stateservice.hrm.models.Org;
+import org.minerva.stateservice.hrm.models.*;
 import org.minerva.stateservice.hrm.repos.OrgRepos;
+import org.minerva.stateservice.hrm.repos.RoleRepos;
+import org.minerva.stateservice.hrm.repos.UserRepos;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import retrofit2.Response;
@@ -21,24 +23,42 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 @Service
 public class OrgService {
     @Autowired
+    FileService fileService;
+    @Autowired
     OrgRepos orgRepos;
+
+    @Autowired
+    UserRepos userRepos;
 
     @Autowired
     ServiceConfigs serviceConfigs;
 
     @Autowired
-    FileService fileService;
+    RoleRepos roleRepos;
 
     @PostConstruct
     private void initOrgTree() {
         InputStream inputStream = getClass().getClassLoader().getResourceAsStream("org_tree.bpmn");
         syncFromFile(inputStream);
+        Role role = new Role("employee", "Nhân viên");
+        roleRepos.save(role);
+
+        User u = new User("hybrid");
+
+        Set<Allocate> allocates = new HashSet<>() {{
+            add(new Allocate(null, u, orgRepos.getReferenceById("001"), role, null));
+        }};
+        u.setAllocates(allocates);
+        userRepos.save(u);
+
     }
 
     public void syncFromFile(InputStream inputStream) {
@@ -49,7 +69,8 @@ public class OrgService {
 
         if (current instanceof Task) {
             Optional<Documentation> documentationOptional = current.getDocumentations().stream().findAny();
-            Org org = new Org(null, null, documentationOptional.isPresent() ? documentationOptional.get().getTextContent() : "{}");
+
+            Org org = Org.fromTask(current.getId(), null, documentationOptional.isPresent() ? documentationOptional.get().getTextContent() : "{}");
             orgRepos.save(org);
             String path = String.format("%s/", org.getId());
             for (SequenceFlow sequenceFlow : current.getOutgoing())
@@ -90,7 +111,7 @@ public class OrgService {
 
         Org root = rootOpt.get();
         String rootAncestry = String.format("%s/", root.getId());
-        AbstractGatewayBuilder builder = Bpmn.createProcess("org_tree")
+        AbstractGatewayBuilder<?, ?> builder = Bpmn.createProcess("org_tree")
                 .startEvent().name("start")
                 .manualTask(root.getTaskId()).name(root.getTaskId())
                 .parallelGateway(root.getNextGatewayId()).name(root.getNextGatewayId());
@@ -100,7 +121,7 @@ public class OrgService {
         return builder.done();
     }
 
-    private AbstractGatewayBuilder travelOrgTree(Org org, AbstractGatewayBuilder builder) {
+    private AbstractGatewayBuilder<?, ?> travelOrgTree(Org org, AbstractGatewayBuilder builder) {
         String ancestry = String.format("%s%s/", org.getAncestry(), org.getId());
         builder.moveToNode(org.getPrevGatewayId())
                 .manualTask(org.getTaskId()).name(org.getTaskId()).documentation(org.getData());
@@ -114,16 +135,16 @@ public class OrgService {
         return builder;
     }
 
-    public void createOrg(Long parentId, String name) {
+    public void createOrg(String parentId, String id, String name) {
         Org parent = orgRepos.getReferenceById(parentId);
-        Org org = new Org(String.format("%s%s/", parent.getAncestry(), parent.getId()), name);
+        Org org = new Org(id, String.format("%s%s/", parent.getAncestry(), parent.getId()), name);
         orgRepos.save(org);
     }
 
     private void travelFlowNode(FlowNode flowNode, String path) {
         if (flowNode instanceof Task) {
             Optional<Documentation> documentationOptional = flowNode.getDocumentations().stream().findAny();
-            Org org = new Org(null, path, documentationOptional.isPresent() ? documentationOptional.get().getTextContent() : "{}");
+            Org org = Org.fromTask(flowNode.getId(), path, documentationOptional.isPresent() ? documentationOptional.get().getTextContent() : "{}");
             orgRepos.save(org);
             for (SequenceFlow sequenceFlow : flowNode.getOutgoing()) {
                 travelFlowNode(sequenceFlow.getTarget(), String.format("%s%s/", path, org.getId()));
